@@ -1,0 +1,29 @@
+trainer: forces
+
+dataset:
+  - src: data/s2ef/200k/train/
+    normalize_labels: True
+    target_mean: -0.7554450631141663
+    target_std: 2.887317180633545
+    grad_target_mean: 0.0
+    grad_target_std: 2.887317180633545
+    train_on_oc20_total_energies: True
+    oc20_ref: /pscratch/sd/w/wenxu/jobs/OCP/dataset/oc20_ref.pkl
+  - src: data/s2ef/all/val_id/
+    train_on_oc20_total_energies: True
+    oc20_ref: /pscratch/sd/w/wenxu/jobs/OCP/dataset/oc20_ref.pkl
+
+#https://github.com/Open-Catalyst-Project/ocp/blob/main/TRAIN.md
+logger: tensorboard
+
+task:
+#  dataset: trajectory_lmdb
+  dataset: oc22_lmdb   #To train an oc20 model on total energy use 'oc22_lmdb'
+  description: "Regressing to energies and forces for DFT trajectories from OCP"
+  type: regression     #
+  metric: mae          #
+  labels:
+    - potential energy
+  grad_input: atomic forces
+  train_on_free_atoms: True
+  eval_on_free_atoms: True
