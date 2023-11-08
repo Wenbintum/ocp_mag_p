@@ -541,7 +541,6 @@ class DimeNetPlusPlusWrap(DimeNetPlusPlus, BaseModel):
 
         # print(J_ji.device) #this is on cuda:0
         # print(magft_cat.device) #this is on cpu
-
         #! i is incoming node of all edges.
         E_HB = torch.mul(J_ji, (magft_cat[i]*magft_cat[j]).sum(dim=1, keepdim=True))
         #! add up each nodes, add up each structure.
@@ -553,7 +552,6 @@ class DimeNetPlusPlusWrap(DimeNetPlusPlus, BaseModel):
 
         # import pdb
         # pdb.set_trace()
-
         energy = energy + E_HB
 
         # print("energy:", energy, "E_HB", E_HB, "sum _M", sum(_M))

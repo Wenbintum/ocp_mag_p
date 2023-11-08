@@ -45,3 +45,4 @@ optim:
 task:
   train_threshold_magmom: True
   eval_threshold_magmom: True
+  threshold_magmom: 0.1

@@ -2,10 +2,10 @@ trainer: mag_dev
 
 dataset:
   train:
-    src: /pscratch/sd/w/wenxu/jobs/OCP/dataset/chgnet_data/split/train_5w_0.5
+    src: /pscratch/sd/w/wenxu/jobs/OCP/dataset/yuri/split/train
     normalize_labels: False
   val:
-    src: /pscratch/sd/w/wenxu/jobs/OCP/dataset/chgnet_data/split/val_5w_0.5
+    src: /pscratch/sd/w/wenxu/jobs/OCP/dataset/yuri/split/val
 
 logger: wandb
 

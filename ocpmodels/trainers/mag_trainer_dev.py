@@ -495,8 +495,6 @@ class ForcesTrainer(BaseTrainer):
             energy_mult * self.loss_fn["energy"](out["energy"], energy_target)
         )
 
-
-        #!magmom loss.  default is 1. but we should give from config file.
         #!applied mask for training. #* you may change threshold.
         mag_target = torch.cat(
                 [batch.magmom.to(self.device) for batch in batch_list], dim=0
@@ -504,7 +502,8 @@ class ForcesTrainer(BaseTrainer):
         mag_mult = self.config["optim"].get("magmom_coefficient", 1)
 
         if self.config["task"].get("train_threshold_magmom", False):
-            threshold = 0.5 #! this can be changed.
+            assert self.config["task"].get("threshold_magmom")
+            threshold = self.config["task"].get("threshold_magmom")
             mask_magmom = abs(mag_target) >= threshold
             loss.append(
                     mag_mult
@@ -516,11 +515,6 @@ class ForcesTrainer(BaseTrainer):
             loss.append(
             mag_mult * self.loss_fn["energy"](out["magmom"], mag_target)
             )
-
-
-        # loss.append(
-        #     mag_mult * self.loss_fn["energy"](out["magmom"], batch_list[0].magmom)
-        # )
 
         # Force loss.
         if self.config["model_attributes"].get("regress_forces", True):
@@ -662,10 +656,9 @@ class ForcesTrainer(BaseTrainer):
         # import pdb
         # pdb.set_trace()
 
-
-        #!mag > 0.1 
         if self.config["task"].get("eval_threshold_magmom", True):
-            threshold = 0.5 #! this can be changed.
+            assert self.config["task"].get("threshold_magmom")
+            threshold = self.config["task"].get("threshold_magmom")
             mask_magmom = abs(target["magmom"]) >= threshold
             out["magmom"] = out["magmom"][mask_magmom]
             target["magmom"] = target["magmom"][mask_magmom]
@@ -683,7 +676,6 @@ class ForcesTrainer(BaseTrainer):
             target["natoms_mag"] = torch.LongTensor(natoms_free_mag).to(self.device)
             out["natoms_mag"] = torch.LongTensor(natoms_free_mag).to(self.device)
 
-        
         if self.config["task"].get("eval_on_free_atoms", True):
             fixed = torch.cat(
                 [batch.fixed.to(self.device) for batch in batch_list]
@@ -702,7 +694,8 @@ class ForcesTrainer(BaseTrainer):
 
             target["natoms"] = torch.LongTensor(natoms_free).to(self.device)
             out["natoms"] = torch.LongTensor(natoms_free).to(self.device)
-
+        
+        #!if normalize lables is False. not go throught three lines below
         #!当normalize labels是False的时候也就是现在，下面的这三个不动
         if self.normalizer.get("normalize_labels", False):
             out["energy"] = self.normalizers["target"].denorm(out["energy"])
@@ -712,7 +705,7 @@ class ForcesTrainer(BaseTrainer):
             #!mag
             out["magmom"] = self.normalizers["magmom_target"].denorm(out["magmom"])
 
-        #!在做完mask之后 传入的out, target就只是满足条件的原子了, 所以下面不需要进行处理
+        #!out excludes atoms masked. target only include atoms fullfilling threshold
         metrics = evaluator.eval(out, target, prev_metrics=metrics)
         return metrics
 
